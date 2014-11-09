@@ -12,12 +12,17 @@ Install with composer:
 
 ##Usage
 
+Models/User.php
+
 ```php
 class User extends MartynBiz\Database\Table
 {
     protected $table = 'users';
 }
 ```
+
+Script
+
 ```php
 $adapter = new MartynBiz\Database\Adapter(array(
     'dsn' => '...',
