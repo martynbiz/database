@@ -4,7 +4,7 @@ namespace MartynBiz\Database;
 
 use MartynBiz\Database\AdapterInterface;
 
-abstract class AbstractTableGateway
+abstract class Table
 {
     protected $tableName;
     
@@ -40,6 +40,11 @@ abstract class AbstractTableGateway
     public function select($where=null, $whereValues=null, $options=array())
     {
         return $this->adapter->select($this->tableName, $where, $whereValues, $options);
+    }
+    
+    public function prepareNew($value=array())
+    {
+        return new Row($value, $this);
     }
     
     public function create($values)

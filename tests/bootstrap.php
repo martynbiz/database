@@ -20,10 +20,10 @@ class PDOStatementMock extends \PDOStatement
     public function __construct() {}
 }
 
-use MartynBiz\Database\AbstractTableGateway;
+use MartynBiz\Database\Table;
 
 // TableGateway needs to be extended, so we'll create AccountsTable for the sake of testing
-class Account extends AbstractTableGateway
+class Account extends Table
 {
     protected $belongsTo = array(
         'user' => array(
@@ -44,12 +44,26 @@ class Account extends AbstractTableGateway
 
 // two more classes to simulate related tables (belongsTo, hasMany)
 
-class User extends AbstractTableGateway
+class User extends Table
 {
     protected $tableName = 'users';
+    
+    protected $hasMany = array(
+        'transactions' => array(
+            'table' => 'transactions',
+            'foreign_key' => 'user_id',
+        )
+    );
 }
 
-class Transaction extends AbstractTableGateway
+class Transaction extends Table
 {
     protected $tableName = 'transactions';
+    
+    protected $belongsTo = array(
+        'user' => array(
+            'table' => 'users',
+            'foreign_key' => 'user_id',
+        )
+    );
 }

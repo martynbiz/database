@@ -49,7 +49,7 @@ class AdapterTest extends PHPUnit_Framework_TestCase
             ->will( $this->returnValue($mockExecuteResult) );
         
         // create instance with mock
-        $adapter = new Adapter($PDOMock);
+        $adapter = new Adapter(null, null, null, $PDOMock);
         
         // perform test
         $result = $adapter->select($tableName, $where, $whereValues, $options);
@@ -86,7 +86,7 @@ class AdapterTest extends PHPUnit_Framework_TestCase
             ->will( $this->returnValue(true) );
         
         // create instance with mock
-        $adapter = new Adapter($PDOMock);
+        $adapter = new Adapter(null, null, null, $PDOMock);
         
         $result = $adapter->insert($tableName, $values);
         
@@ -119,7 +119,7 @@ class AdapterTest extends PHPUnit_Framework_TestCase
             ->will( $this->returnValue(true) );
         
         // create instance with mock
-        $adapter = new Adapter($PDOMock);
+        $adapter = new Adapter(null, null, null, $PDOMock);
         
         $result = $adapter->update($tableName, $values, $where, $whereValues, $options);
         
@@ -148,7 +148,7 @@ class AdapterTest extends PHPUnit_Framework_TestCase
             ->will( $this->returnValue(true) );
         
         // create instance with mock
-        $adapter = new Adapter($PDOMock);
+        $adapter = new Adapter(null, null, null, $PDOMock);
         
         $result = $adapter->delete($tableName, $where, $whereValues, $options);
         

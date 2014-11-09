@@ -210,4 +210,16 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         // $accountsTable->getRelationship('transactions') // returns and array with Transaction
         // $accountsTable->getRelationship('idontexist') // returns null
     }
+    
+    public function testNewReturnsInstanceOfRow()
+    {
+        // our mock adapter
+        $adapter = $this->adapterMock;
+        
+        $accountsTable = new Account($adapter); // just need adapter to instantiate
+        
+        $account = $accountsTable->prepareNew();
+        
+        $this->assertTrue($account instanceof \MartynBiz\Database\Row);
+    }
 }

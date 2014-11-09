@@ -9,11 +9,21 @@ class Adapter implements AdapterInterface {
     /**
     * This construct takes an instance of PDO as a dependency so we can pass in test stubs for mocking
     * 
-    * @param $pdo object PDO instance
+    * @param $dsn string
+    * @param $user string
+    * @param $password string
+    * @param $pdo object PDO
     */
-	public function __construct(\PDO $pdo) {
+	public function __construct($dsn, $user, $password, $pdo=null) {
 		
-        $this->pdo = $pdo;
+        if($pdo instanceof \PDO)
+        {
+            $this->pdo = $pdo;
+        }
+        else
+        {
+            $this->pdo = new PDO($dsn, $user, $password);
+        }
 	}
 	
 	/**
