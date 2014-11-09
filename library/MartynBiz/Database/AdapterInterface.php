@@ -5,7 +5,7 @@ namespace MartynBiz\Database;
 interface AdapterInterface {
 	
     //public function __construct(array $dbConfig);
-	public function __construct($dsn, $user, $password, $pdo=null);
+	public function __construct($config, $pdo=null);
 	
     /**
     * Select rows from a table

@@ -10,48 +10,7 @@ Install with composer:
 "martynbiz/database": "dev-master"
 ```
 
-###Adapter class
-
-```php
-$adapter = new MartynBiz\Database\Adapter(array(
-    'dsn' => '...',
-    'user' => '...',
-    'password' => '...',
-));
-
-// select many rows by query (with options)
-$where = 'age > 34';
-$options = array(
-    'limitStart' => 10
-    'limitMax' => 25,
-    'includeDeleted' => true, // fetch deleted rows too (under development)
-);
-$users = $adapter->select('users', $where, $options);
-
-// insert new row
-$values = array(
-    'name' => 'Hugo',
-    'age' => 54,
-);
-$adapter->create('users', $values);
-
-// update rows
-$adapter->update('users', $values, $where, $options);
-
-// delete rows
-$options = array(
-    'cascade' => true, // delete hasMany rows (under development)
-    'softDelete' => true, // set deteled_at column (under development)
-);
-$adapter->delete('users', $where, $options);
-
-```
-
-###Table class
-
 ##Usage
-
-User.php
 
 ```php
 class User extends MartynBiz\Database\Table
@@ -59,9 +18,13 @@ class User extends MartynBiz\Database\Table
     protected $table = 'users';
 }
 ```
-Script
-
 ```php
+$adapter = new MartynBiz\Database\Adapter(array(
+    'dsn' => '...',
+    'user' => '...',
+    'password' => '...',
+));
+
 $usersTable = new Users($adapter);
 
 // return Row object

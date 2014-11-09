@@ -14,7 +14,7 @@ class Adapter implements AdapterInterface {
     * @param $password string
     * @param $pdo object PDO
     */
-	public function __construct($dsn, $user, $password, $pdo=null) {
+	public function __construct($config, $pdo=null) {
 		
         if($pdo instanceof \PDO)
         {
@@ -22,7 +22,14 @@ class Adapter implements AdapterInterface {
         }
         else
         {
-            $this->pdo = new PDO($dsn, $user, $password);
+            // clean config for PDO
+            $config = array_intersect_key($config, array(
+                'dsn' => true,
+                'user' => true,
+                'password' => true,
+            ));
+            
+            $this->pdo = new PDO($config['dsn'], $config['user'], $config['password']);
         }
 	}
 	
