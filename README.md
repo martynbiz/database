@@ -10,20 +10,9 @@ Install with composer:
 "martynbiz/database": "dev-master"
 ```
 
-##Usage
-
-User.php
-
-```
-class User extends MartynBiz\Database\Table
-{
-    protected $table = 'users';
-}
-```
-
 ###Adapter class
 
-```
+```php
 $adapter = new MartynBiz\Database\Adapter(array(
     'dsn' => '...',
     'user' => '...',
@@ -60,7 +49,19 @@ $adapter->delete('users', $where, $options);
 
 ###Table class
 
+##Usage
+
+User.php
+
+```php
+class User extends MartynBiz\Database\Table
+{
+    protected $table = 'users';
+}
 ```
+Script
+
+```php
 $usersTable = new Users($adapter);
 
 // return Row object
@@ -91,7 +92,7 @@ $usersTable->delete($where, $options);
 
 ###Relationships (in development)
 
-```
+```php
 class User extends Table
 {
     protected $tableName = 'users';
