@@ -60,7 +60,11 @@ $usersTable->delete($where, $options);
 ###Unit testing
 
 ```php
-$usersTable = new Users($adapterStub);
+$adapterMock = $this->getMockBuilder('MartynBiz\Database\Adapter')
+    ->disableOriginalConstructor()
+    ->getMock();
+
+$usersTable = new Users($adapterMock);
 ```
 
 ###Relationships (in development)
@@ -90,8 +94,3 @@ class Transaction extends Table
     );
 }
 ```
-
-##Todo
-
-Build relationships in Row
-Fillable
