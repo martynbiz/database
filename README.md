@@ -57,6 +57,11 @@ $usersTable->update($values, $where, $options);
 $usersTable->delete($where, $options);
 
 ```
+###Unit testing
+
+```php
+$usersTable = new Users($adapterStub);
+```
 
 ###Relationships (in development)
 
