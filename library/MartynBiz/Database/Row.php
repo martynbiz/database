@@ -28,6 +28,25 @@ class Row
         if (isset($this->values[$name]))
             return $this->values[$name];
         
+        // name doesn't exist within this rows values array, check if an assoc has been set on
+        // the table class
+        
+        $assoc = $this->table->getAssoc($name);
+        if (is_array($assoc)) {
+            switch ($assoc['type']) {
+                case 'belongsTo':
+                    
+                    
+                    
+                    break;
+                case 'hasMany':
+                    
+                    
+                    
+                    break;
+            }
+        }
+        
         // check in relation exists in table class
         
         // e.g. get back array('type'=>'hasMany', 'table'=>'trans...', 'fkey'=>'account_id')

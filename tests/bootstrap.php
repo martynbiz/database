@@ -22,24 +22,40 @@ class PDOStatementMock extends \PDOStatement
 
 use MartynBiz\Database\Table;
 
+// issues trying to unit test these assocs
+
+// I want to unit test assocs but having difficulty swapping out those classes
+
+// define 'class' as string - objects gets instantiated inside the method, cannot mock
+//                from container - container becomes tightly coupled
+//                from a singleton - static methods can't be mocked
+//                new instance - non singular
+// define instead 'table' - no reference to the Table to generate Row objects
+
+// best solution I an think of is - allow setting of belongsTo and hasMany during run-time
+
+
 // TableGateway needs to be extended, so we'll create AccountsTable for the sake of testing
 class Account extends Table
 {
+    protected $tableName = 'accounts';
+    
+    // this allows us to test -- no used for production
+    protected $allowRuntimeSetting = true;
+    
     protected $belongsTo = array(
         'user' => array(
-            'class' => 'User',
-            'fkey' => 'user_id'
+            'class' => 'User', // if set as a string, this will create a new instance :/
+            'foreign_key' => 'user_id'
         ),
     );
     
     protected $hasMany = array(
         'transactions' => array(
             'class' => 'Transaction',
-            'fkey' => 'account_id'
+            'foreign_key' => 'account_id'
         ),
     );
-    
-    protected $tableName = 'accounts';
 }
 
 // two more classes to simulate related tables (belongsTo, hasMany)
@@ -48,9 +64,12 @@ class User extends Table
 {
     protected $tableName = 'users';
     
+    // this allows us to test -- no used for production
+    protected $allowRuntimeSetting = true;
+    
     protected $hasMany = array(
         'transactions' => array(
-            'table' => 'transactions',
+            'class' => 'Transaction',
             'foreign_key' => 'user_id',
         )
     );
@@ -60,10 +79,15 @@ class Transaction extends Table
 {
     protected $tableName = 'transactions';
     
+    // this allows us to test -- no used for production
+    protected $allowRuntimeSetting = true;
+    
     protected $belongsTo = array(
         'user' => array(
-            'table' => 'users',
+            'class' => 'User',
             'foreign_key' => 'user_id',
         )
     );
 }
+
+

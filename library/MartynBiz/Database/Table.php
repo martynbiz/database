@@ -4,7 +4,7 @@ namespace MartynBiz\Database;
 
 use MartynBiz\Database\AdapterInterface;
 
-abstract class Table
+abstract class Table implements TableInterface
 {
     protected $tableName;
     
@@ -16,9 +16,34 @@ abstract class Table
     protected $belongsTo = array();
     protected $hasMany = array();
     
+    /**
+    * These properties allow us to test by giving us access to the internal clas
+    * However, during run time this is not required (and not really allowed)
+    */
+    protected $allowRuntimeSetting = false;
+    
+    public static function getInstance(AdapterInterface $adapter)
+    {
+        static $instance = null;
+        if (null === $instance) {
+            $className = get_called_class();
+            $instance = new $className($adapter);
+        }
+
+        return $instance;
+    }
+    
     public function __construct(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+        
+        // here we will also getInstances of any of our assoc 'class' values
+        // foreach($this->belongsTo as $key => $arr) {
+        //     $this->belongsTo[$name]['table'] = $arr['class']::getInstance();
+        // }
+        // foreach($this->hasMany as $key => $arr) {
+        //     $this->hasMany[$name]['table'] = $arr['class']::getInstance();
+        // }
     }
     
     public function find($id)
@@ -67,16 +92,52 @@ abstract class Table
     * 
     * @param $name string name of related item
     */
-    public function getRelationship($name) {
-        // check each of the arrays if they contain the give name
-        $relationshipArrays = array('belongsTo', 'hasMany');
+    public function getAssoc($name) {
         
-        foreach($relationshipArrays as $type) {
-            if (isset($this->$type[$name])) {
-                $result = $this->$type[$name];
-                $result['type'] = $type; // add the type too, it will be useful
-                return $result;
-            } 
+        if (isset($this->belongsTo[$name])) {
+            $result = $this->belongsTo[$name];
+            $result['type'] = 'belongsTo';
+            return $result;
         }
+        
+        if (isset($this->hasMany[$name])) {
+            $result = $this->hasMany[$name];
+            $result['type'] = 'hasMany';
+            return $result;
+        }
+    }
+    
+    /**
+    * This setter is used to allow for dynamic setting of properties
+    * We need a means to be able to switch out hasMany, and belongsTo for
+    * testing
+    */
+    public function setHasMany($name, $hasMany)
+    {
+        if (! $this->allowRuntimeSetting)
+            return false;
+        
+        $this->hasMany[$name] = $hasMany;
+    }
+    
+    public function setBelongsTo($name, $belongsTo)
+    {
+        if (! $this->allowRuntimeSetting)
+            return false;
+        
+        $this->belongsTo[$name] = $belongsTo;
+    }
+    
+    public function getAdapter()
+    {
+        return $this->adapter;
+    }
+    
+    public function setAdapter($adapter)
+    {
+        if (! $this->allowRuntimeSetting)
+            return false;
+        
+        $this->adapter = $adapter;
     }
 }

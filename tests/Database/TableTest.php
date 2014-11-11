@@ -13,6 +13,34 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         $this->adapterMock = $adapterMock;
     }
     
+    public function testGetInstanceReturnsInstanceOfClass()
+    {
+        $adapter = $this->adapterMock;
+        $accountsTable = Account::getInstance($adapter);
+        
+        $this->assertTrue($accountsTable instanceof Account);
+    }
+    
+    public function testGettingAndSettingAdapter()
+    {
+        $adapter = $this->adapterMock;
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
+        
+        // test the dependency injection worked
+        $this->assertEquals($accountsTable->getAdapter(), $adapter);
+        
+        // set adapter with clone
+        $adapter2 = clone $adapter;
+        
+        // ensure that these two adapters are not the same instance
+        $this->assertTrue($adapter != $adapter2);
+        
+        // set the adapter
+        $accountsTable->setAdapter($adapter2);
+        
+        $this->assertEquals($accountsTable->getAdapter(), $adapter2);
+    }
+    
     public function testFindWithValidId()
     {
         // the id we are looking for
@@ -39,7 +67,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
             ->with('accounts', $where, $whereValues, $options)
             ->will( $this->returnValue($mockResult) );
         
-        $accountsTable = new Account($adapter);
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
         $result = $accountsTable->find(1);
         
@@ -64,7 +92,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         
         // perform the test
         
-        $accountsTable = new Account($adapter);
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
         $accountsTable->find(1);
     }
@@ -101,7 +129,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
             ->with('accounts', $where, $whereValues, $options)
             ->will( $this->returnValue($mockResult) );
         
-        $accountsTable = new Account($adapter);
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
         $result = $accountsTable->select($where, $whereValues, $options);
         
@@ -118,7 +146,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
             ->method('select')
             ->with('accounts', null, null, array());
         
-        $accountsTable = new Account($adapter);
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
         $result = $accountsTable->select();
     }
@@ -141,7 +169,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
             ->with('accounts', $values)
             ->will( $this->returnValue(true) );
         
-        $accountsTable = new Account($adapter);
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
         $result = $accountsTable->create($values);
         
@@ -151,7 +179,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
     public function testUpdate()
     {
         // the rows we are looking to update
-        $where = 'amount > 99';
+        $where = 'amount > ?';
         $whereValues = array(1); // id=1
         $options = array(
             'limitMax' => 1,
@@ -171,7 +199,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
             ->with('accounts', $values, $where, $whereValues, $options)
             ->will( $this->returnValue(true) );
         
-        $accountsTable = new Account($adapter);
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
         $result = $accountsTable->update($values, $where, $whereValues, $options);
         
@@ -196,19 +224,11 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
             ->with('accounts', $where, $whereValues, $options)
             ->will( $this->returnValue(true) );
         
-        $accountsTable = new Account($adapter);
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
         $result = $accountsTable->delete($where, $whereValues, $options);
         
         $this->assertTrue($result); 
-    }
-    
-    public function testGetRelationship()
-    {
-        // test returns the correct array
-        // $accountsTable->getRelationship('user') // returns and array with User
-        // $accountsTable->getRelationship('transactions') // returns and array with Transaction
-        // $accountsTable->getRelationship('idontexist') // returns null
     }
     
     public function testNewReturnsInstanceOfRow()
@@ -216,10 +236,75 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         // our mock adapter
         $adapter = $this->adapterMock;
         
-        $accountsTable = new Account($adapter); // just need adapter to instantiate
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing // just need adapter to instantiate
         
         $account = $accountsTable->prepareNew();
         
         $this->assertTrue($account instanceof \MartynBiz\Database\Row);
+    }
+    
+    public function testGetAssoc()
+    {
+        // our mock adapter - only needed for construction of Accounts
+        $adapter = $this->adapterMock;
+        
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
+        
+        // test returns the correct array
+        $userAssoc = $accountsTable->getAssoc('user'); // returns and array with User
+        $transactionsAssoc = $accountsTable->getAssoc('transactions'); // returns and array with Transaction
+        $nullAssoc = $accountsTable->getAssoc('idontexist'); // returns null
+        
+        $this->assertEquals($userAssoc['type'], 'belongsTo');
+        $this->assertEquals($transactionsAssoc['type'], 'hasMany');
+        $this->assertTrue(is_null($nullAssoc));
+    }
+    
+    public function testSwappingAssocAllowedWhenAllowIsSetToTrue()
+    {
+        // our mock adapter - only needed for construction of Accounts
+        $adapter = $this->adapterMock;
+        
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
+        
+        $accountsTable->setBelongsTo('user', array(
+            'foreign_key' => 'new_belongsTo',
+        ));
+        
+        // set our protected properties to something else
+        $accountsTable->setHasMany('transactions', array(
+            'foreign_key' => 'new_hasMany',
+        ));
+        
+        $userAssoc = $accountsTable->getAssoc('user'); // returns and array with User
+        $transactionsAssoc = $accountsTable->getAssoc('transactions');
+        
+        $this->assertEquals($userAssoc['foreign_key'], 'new_belongsTo');
+        $this->assertEquals($transactionsAssoc['foreign_key'], 'new_hasMany');
+    }
+    
+    public function testSwappingAssocNotAllowedWhenAllowIsSetToFalse()
+    {
+        // our mock adapter - only needed for construction of Accounts
+        $adapter = $this->adapterMock;
+        
+        $userTable = new Account($adapter); // getInstance doesn't work well in testing
+        // $transactionTable = new Transaction($adapter);
+        
+        // set our protected properties to something else
+        
+        $userTable->setHasMany('transactions', array(
+            'foreign_key' => 'new_hasMany',
+        ));
+        
+        // $transactionTable->setBelongsTo('user', array(
+        //     'foreign_key' => 'new_belongsTo',
+        // ));
+        
+        $userAssoc = $userTable->getAssoc('user'); // returns and array with User
+        // $transactionsAssoc = $userTable->getAssoc('transactions');
+        
+        $this->assertEquals($userAssoc['foreign_key'], 'user_id');
+        // $this->assertEquals($transactionsAssoc['foreign_key'], 'user_id');
     }
 }

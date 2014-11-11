@@ -1,6 +1,6 @@
 #Database
 
-Light weight ORM classes.
+Light weight ORM classes. It's designed to be well suited for unit testing where the database adapter can be mocked easily. Also provides just enough to do common tasks such as find/select/create/update/delete, and relations between tables based (e.g. hasMany/ belongsTo) and can be within PHP frameworks, or stand alone. 
 
 ##Installation
 
@@ -65,6 +65,36 @@ $adapterMock = $this->getMockBuilder('MartynBiz\Database\Adapter')
     ->getMock();
 
 $usersTable = new Users($adapterMock);
+```
+
+Table classes can also be set to allow internal components to be swapped out and set during run-time:
+
+```
+class User extends Table
+{
+    protected $tableName = 'transactions';
+    
+    // this allows us to swap components -- not used for production
+    protected $allowRuntimeSetting = true;
+    
+    protected $belongsTo = array(
+        'user' => array(
+            'class' => 'User',
+            'foreign_key' => 'user_id',
+        )
+    );
+}
+
+$account = Account::getInstance();
+$user->setHasMany('transactions', array(
+    'table' => $mockTransaction,
+    'foreign_key' => 'user_id',
+));
+$user->setBelongsTo('user', array(
+    'table' => $mockUser,
+    'foreign_key' => 'user_id',
+));
+$user->setAdapter($mockAdapter);
 ```
 
 ###Relationships (in development)

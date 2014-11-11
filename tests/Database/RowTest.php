@@ -11,8 +11,16 @@ class RowGatewayTest extends PHPUnit_Framework_TestCase
         $userTableMock = $this->getMockBuilder('User')
             ->disableOriginalConstructor()
             ->getMock();
+        $accountTableMock = $this->getMockBuilder('Account')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $transactionTableMock = $this->getMockBuilder('Transaction')
+            ->disableOriginalConstructor()
+            ->getMock();
         
         $this->userTableMock = $userTableMock;
+        $this->accountTableMock = $accountTableMock;
+        $this->transactionTableMock = $transactionTableMock;
     }
     
     public function testRowIsInitiatedWithValues()
@@ -31,6 +39,16 @@ class RowGatewayTest extends PHPUnit_Framework_TestCase
         
         $this->assertEquals($user->id, $values['id']);
         $this->assertEquals($user->name, $values['name']);
+    }
+    
+    public function testHasManyGetterWorks()
+    {
+        
+    }
+    
+    public function testBelongsToGetterWorks()
+    {
+        
     }
     
     public function testSaveCallsTableCreateMethodWithoutId()
