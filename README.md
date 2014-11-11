@@ -69,7 +69,7 @@ $usersTable = new Users($adapterMock);
 
 Table classes can also be set to allow internal components to be swapped out and set during run-time:
 
-```
+```php
 class User extends Table
 {
     protected $tableName = 'transactions';
@@ -106,7 +106,7 @@ class User extends Table
     
     protected $hasMany = array(
         'transactions' => array(
-            'table' => 'transactions',
+            'table' => 'App\Model\Transaction',
             'foreign_key' => 'user_id',
         )
     );
@@ -118,7 +118,7 @@ class Transaction extends Table
     
     protected $belongsTo = array(
         'user' => array(
-            'table' => 'users',
+            'table' => 'App\Model\User',
             'foreign_key' => 'user_id',
         )
     );
