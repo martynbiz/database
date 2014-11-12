@@ -1,6 +1,6 @@
 #Database
 
-Light weight ORM classes. It's designed to be well suited for unit testing where the database adapter can be mocked easily. Also provides just enough to do common tasks such as find/select/create/update/delete, and relations between tables based (e.g. hasMany/ belongsTo) and can be within PHP frameworks, or stand alone. 
+Light weight ORM classes. It's designed to be well suited for unit testing where the database adapter can be mocked easily. Also provides just enough to do common tasks such as find/select/create/update/delete, and associations between tables (e.g. hasMany/ belongsTo). Can be run stand along or within a framework. 
 
 ##Installation
 
@@ -30,7 +30,7 @@ $adapter = new MartynBiz\Database\Adapter(array(
     'password' => '...',
 ));
 
-$usersTable = new Users($adapter);
+$usersTable = Users::getInstance($adapter);
 
 // return Row object
 $user = $usersTable->find($id);
@@ -88,7 +88,7 @@ class Transaction extends Table
 
 ##Unit testing
 
-##Mocking table adapter
+###Mocking table adapter
 
 ```php
 $adapterMock = $this->getMockBuilder('MartynBiz\Database\Adapter')
@@ -98,7 +98,7 @@ $adapterMock = $this->getMockBuilder('MartynBiz\Database\Adapter')
 $usersTable = new Users($adapterMock);
 ```
 
-##Mocking PDO adapter
+###Mocking PDO adapter
 
 If it was neccessary to extend the adapter class, the PDO object which is usually generated internally can be injected instead (upon which the database credentials will be ingored). This allows the extended class to be unit testing with a mock PDO object.
 
