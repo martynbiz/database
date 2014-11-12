@@ -10,7 +10,7 @@ Install with composer:
 "martynbiz/database": "dev-master"
 ```
 
-##Usage
+##ORM
 
 Models/User.php
 
@@ -86,9 +86,13 @@ class Transaction extends Table
 }
 ```
 
+##Database adapter
+
+...
+
 ##Unit testing
 
-###Mocking table adapter
+###Table
 
 ```php
 $adapterMock = $this->getMockBuilder('MartynBiz\Database\Adapter')
@@ -98,7 +102,7 @@ $adapterMock = $this->getMockBuilder('MartynBiz\Database\Adapter')
 $usersTable = new Users($adapterMock);
 ```
 
-###Mocking PDO adapter
+###Adapter
 
 If it was neccessary to extend the adapter class, the PDO object which is usually generated internally can be injected instead (upon which the database credentials will be ingored). This allows the extended class to be unit testing with a mock PDO object.
 
