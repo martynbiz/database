@@ -243,7 +243,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($account instanceof \MartynBiz\Database\Row);
     }
     
-    public function testGetAssoc()
+    public function testGetAssocReturnsArrayWhenSet()
     {
         // our mock adapter - only needed for construction of Accounts
         $adapter = $this->adapterMock;
@@ -253,10 +253,26 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         // test returns the correct array
         $userAssoc = $accountsTable->getAssoc('user'); // returns and array with User
         $transactionsAssoc = $accountsTable->getAssoc('transactions'); // returns and array with Transaction
-        $nullAssoc = $accountsTable->getAssoc('idontexist'); // returns null
         
         $this->assertEquals($userAssoc['type'], 'belongsTo');
+        $this->assertEquals($userAssoc['foreign_key'], 'user_id');
+        $this->assertTrue($userAssoc['table'] instanceof User);
+        
         $this->assertEquals($transactionsAssoc['type'], 'hasMany');
+        $this->assertEquals($transactionsAssoc['foreign_key'], 'account_id');
+        $this->assertTrue($transactionsAssoc['table'] instanceof Transaction);
+    }
+    
+    public function testGetAssocReturnsNullWhenNothingSet()
+    {
+        // our mock adapter - only needed for construction of Accounts
+        $adapter = $this->adapterMock;
+        
+        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
+        
+        // test returns the correct array
+        $nullAssoc = $accountsTable->getAssoc('idontexist'); // returns null
+        
         $this->assertTrue(is_null($nullAssoc));
     }
     
@@ -266,13 +282,16 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         $adapter = $this->adapterMock;
         
         $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
+        $accountsTable->allowRuntimeSetting();
         
         $accountsTable->setBelongsTo('user', array(
+            'table' => 'User',
             'foreign_key' => 'new_belongsTo',
         ));
         
         // set our protected properties to something else
         $accountsTable->setHasMany('transactions', array(
+            'table' => 'Transaction',
             'foreign_key' => 'new_hasMany',
         ));
         
@@ -289,7 +308,7 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         $adapter = $this->adapterMock;
         
         $userTable = new Account($adapter); // getInstance doesn't work well in testing
-        // $transactionTable = new Transaction($adapter);
+        $transactionTable = new Transaction($adapter);
         
         // set our protected properties to something else
         
@@ -297,14 +316,14 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
             'foreign_key' => 'new_hasMany',
         ));
         
-        // $transactionTable->setBelongsTo('user', array(
-        //     'foreign_key' => 'new_belongsTo',
-        // ));
+        $transactionTable->setBelongsTo('user', array(
+            'foreign_key' => 'new_belongsTo',
+        ));
         
         $userAssoc = $userTable->getAssoc('user'); // returns and array with User
-        // $transactionsAssoc = $userTable->getAssoc('transactions');
+        $transactionsAssoc = $userTable->getAssoc('transactions');
         
-        $this->assertEquals($userAssoc['foreign_key'], 'user_id');
-        // $this->assertEquals($transactionsAssoc['foreign_key'], 'user_id');
+        $this->assertEquals('user_id', $userAssoc['foreign_key']);
+        $this->assertEquals('account_id', $transactionsAssoc['foreign_key']);
     }
 }

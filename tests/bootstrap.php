@@ -40,19 +40,16 @@ class Account extends Table
 {
     protected $tableName = 'accounts';
     
-    // this allows us to test -- no used for production
-    protected $allowRuntimeSetting = true;
-    
     protected $belongsTo = array(
         'user' => array(
-            'class' => 'User', // if set as a string, this will create a new instance :/
+            'table' => 'User',
             'foreign_key' => 'user_id'
         ),
     );
     
     protected $hasMany = array(
         'transactions' => array(
-            'class' => 'Transaction',
+            'table' => 'Transaction',
             'foreign_key' => 'account_id'
         ),
     );
@@ -64,13 +61,10 @@ class User extends Table
 {
     protected $tableName = 'users';
     
-    // this allows us to test -- no used for production
-    protected $allowRuntimeSetting = true;
-    
     protected $hasMany = array(
-        'transactions' => array(
-            'class' => 'Transaction',
-            'foreign_key' => 'user_id',
+        'accounts' => array(
+            'table' => 'Account',
+            'foreign_key' => 'account_id',
         )
     );
 }
@@ -79,13 +73,10 @@ class Transaction extends Table
 {
     protected $tableName = 'transactions';
     
-    // this allows us to test -- no used for production
-    protected $allowRuntimeSetting = true;
-    
     protected $belongsTo = array(
-        'user' => array(
-            'class' => 'User',
-            'foreign_key' => 'user_id',
+        'account' => array(
+            'table' => 'Account',
+            'foreign_key' => 'account_id',
         )
     );
 }

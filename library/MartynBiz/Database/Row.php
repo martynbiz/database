@@ -14,7 +14,7 @@ class Row
     */
     protected $values;
     
-    public function __construct($values=array(), Table $table)
+    public function __construct(Table $table, $values=array())
     {
         $this->values = $values;
         $this->table = $table;
@@ -33,19 +33,43 @@ class Row
         
         $assoc = $this->table->getAssoc($name);
         if (is_array($assoc)) {
+            // set the table
+            $table = $assoc['table'];
+            $foreignKey = $assoc['foreign_key'];
+            
             switch ($assoc['type']) {
                 case 'belongsTo':
                     
+                    $where = $foreignKey . ' = ?';
+                    $whereValues = array($this->values[$foreignKey]); //***what happens if id not set
+                    $options = array(
+                        'limitMax' => 1,
+                    );
                     
+                    $rows = $table->select($where, $whereValues, $options);
+                    
+                    if(count($rows) > 0) {
+                        return new Row($table, $rows[0]);
+                    }
                     
                     break;
                 case 'hasMany':
                     
+                    $where = $foreignKey . ' = ?';
+                    $whereValues = array($this->values['id']); //***what happens if id not set
                     
+                    $rows = $table->select($where, $whereValues);
                     
-                    break;
+                    $rowset = array(); // what we return
+                    foreach($rows as $values) {
+                        array_push($rowset, new Row($table, $values));
+                    }
+                    
+                    return $rowset;
             }
         }
+        
+        return null;
         
         // check in relation exists in table class
         

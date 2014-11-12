@@ -37,12 +37,12 @@ abstract class Table implements TableInterface
     {
         $this->adapter = $adapter;
         
-        // here we will also getInstances of any of our assoc 'class' values
+        //here we will also getInstances of any of our assoc 'table' values
         // foreach($this->belongsTo as $key => $arr) {
-        //     $this->belongsTo[$name]['table'] = $arr['class']::getInstance();
+        //     $this->belongsTo[$key]['table'] = $arr['table']::getInstance($adapter);
         // }
         // foreach($this->hasMany as $key => $arr) {
-        //     $this->hasMany[$name]['table'] = $arr['class']::getInstance();
+        //     $this->hasMany[$key]['table'] = $arr['table']::getInstance($adapter);
         // }
     }
     
@@ -69,7 +69,7 @@ abstract class Table implements TableInterface
     
     public function prepareNew($value=array())
     {
-        return new Row($value, $this);
+        return new Row($this, $value);
     }
     
     public function create($values)
@@ -97,21 +97,34 @@ abstract class Table implements TableInterface
         if (isset($this->belongsTo[$name])) {
             $result = $this->belongsTo[$name];
             $result['type'] = 'belongsTo';
+            $tableName = $this->belongsTo[$name]['table'];
+            $result['table'] = $tableName::getInstance($this->adapter);
             return $result;
         }
         
         if (isset($this->hasMany[$name])) {
             $result = $this->hasMany[$name];
             $result['type'] = 'hasMany';
+            $tableName = $this->hasMany[$name]['table'];
+            $result['table'] = $tableName::getInstance($this->adapter);
             return $result;
         }
     }
     
     /**
-    * This setter is used to allow for dynamic setting of properties
+    * These setter is used to allow for dynamic setting of properties
     * We need a means to be able to switch out hasMany, and belongsTo for
     * testing
     */
+    
+    /**
+    * This method will switch on runtime changes
+    */
+    public function allowRuntimeSetting()
+    {
+        $this->allowRuntimeSetting = true;
+    }
+    
     public function setHasMany($name, $hasMany)
     {
         if (! $this->allowRuntimeSetting)
