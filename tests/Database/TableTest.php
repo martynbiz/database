@@ -21,25 +21,25 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($accountsTable instanceof Account);
     }
     
-    public function testGettingAndSettingAdapter()
-    {
-        $adapter = $this->adapterMock;
-        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
+    // public function testGettingAndSettingAdapter()
+    // {
+    //     $adapter = $this->adapterMock;
+    //     $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
-        // test the dependency injection worked
-        $this->assertEquals($accountsTable->getAdapter(), $adapter);
+    //     // test the dependency injection worked
+    //     $this->assertEquals($accountsTable->getAdapter(), $adapter);
         
-        // set adapter with clone
-        $adapter2 = clone $adapter;
+    //     // set adapter with clone
+    //     $adapter2 = clone $adapter;
         
-        // ensure that these two adapters are not the same instance
-        $this->assertTrue($adapter != $adapter2);
+    //     // ensure that these two adapters are not the same instance
+    //     $this->assertTrue($adapter != $adapter2);
         
-        // set the adapter
-        $accountsTable->setAdapter($adapter2);
+    //     // set the adapter
+    //     $accountsTable->setAdapter($adapter2);
         
-        $this->assertEquals($accountsTable->getAdapter(), $adapter2);
-    }
+    //     $this->assertEquals($accountsTable->getAdapter(), $adapter2);
+    // }
     
     public function testFindWithValidId()
     {
@@ -276,54 +276,54 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_null($nullAssoc));
     }
     
-    public function testSwappingAssocAllowedWhenAllowIsSetToTrue()
-    {
-        // our mock adapter - only needed for construction of Accounts
-        $adapter = $this->adapterMock;
+    // public function testSwappingAssocAllowedWhenAllowIsSetToTrue()
+    // {
+    //     // our mock adapter - only needed for construction of Accounts
+    //     $adapter = $this->adapterMock;
         
-        $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
-        $accountsTable->allowRuntimeSetting();
+    //     $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
+    //     $accountsTable->allowRuntimeSetting();
         
-        $accountsTable->setBelongsTo('user', array(
-            'table' => 'User',
-            'foreign_key' => 'new_belongsTo',
-        ));
+    //     $accountsTable->setBelongsTo('user', array(
+    //         'table' => 'User',
+    //         'foreign_key' => 'new_belongsTo',
+    //     ));
         
-        // set our protected properties to something else
-        $accountsTable->setHasMany('transactions', array(
-            'table' => 'Transaction',
-            'foreign_key' => 'new_hasMany',
-        ));
+    //     // set our protected properties to something else
+    //     $accountsTable->setHasMany('transactions', array(
+    //         'table' => 'Transaction',
+    //         'foreign_key' => 'new_hasMany',
+    //     ));
         
-        $userAssoc = $accountsTable->getAssoc('user'); // returns and array with User
-        $transactionsAssoc = $accountsTable->getAssoc('transactions');
+    //     $userAssoc = $accountsTable->getAssoc('user'); // returns and array with User
+    //     $transactionsAssoc = $accountsTable->getAssoc('transactions');
         
-        $this->assertEquals($userAssoc['foreign_key'], 'new_belongsTo');
-        $this->assertEquals($transactionsAssoc['foreign_key'], 'new_hasMany');
-    }
+    //     $this->assertEquals($userAssoc['foreign_key'], 'new_belongsTo');
+    //     $this->assertEquals($transactionsAssoc['foreign_key'], 'new_hasMany');
+    // }
     
-    public function testSwappingAssocNotAllowedWhenAllowIsSetToFalse()
-    {
-        // our mock adapter - only needed for construction of Accounts
-        $adapter = $this->adapterMock;
+    // public function testSwappingAssocNotAllowedWhenAllowIsSetToFalse()
+    // {
+    //     // our mock adapter - only needed for construction of Accounts
+    //     $adapter = $this->adapterMock;
         
-        $userTable = new Account($adapter); // getInstance doesn't work well in testing
-        $transactionTable = new Transaction($adapter);
+    //     $userTable = new Account($adapter); // getInstance doesn't work well in testing
+    //     $transactionTable = new Transaction($adapter);
         
-        // set our protected properties to something else
+    //     // set our protected properties to something else
         
-        $userTable->setHasMany('transactions', array(
-            'foreign_key' => 'new_hasMany',
-        ));
+    //     $userTable->setHasMany('transactions', array(
+    //         'foreign_key' => 'new_hasMany',
+    //     ));
         
-        $transactionTable->setBelongsTo('user', array(
-            'foreign_key' => 'new_belongsTo',
-        ));
+    //     $transactionTable->setBelongsTo('user', array(
+    //         'foreign_key' => 'new_belongsTo',
+    //     ));
         
-        $userAssoc = $userTable->getAssoc('user'); // returns and array with User
-        $transactionsAssoc = $userTable->getAssoc('transactions');
+    //     $userAssoc = $userTable->getAssoc('user'); // returns and array with User
+    //     $transactionsAssoc = $userTable->getAssoc('transactions');
         
-        $this->assertEquals('user_id', $userAssoc['foreign_key']);
-        $this->assertEquals('account_id', $transactionsAssoc['foreign_key']);
-    }
+    //     $this->assertEquals('user_id', $userAssoc['foreign_key']);
+    //     $this->assertEquals('account_id', $transactionsAssoc['foreign_key']);
+    // }
 }

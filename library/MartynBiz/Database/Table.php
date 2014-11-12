@@ -111,46 +111,38 @@ abstract class Table implements TableInterface
         }
     }
     
-    /**
-    * These setter is used to allow for dynamic setting of properties
-    * We need a means to be able to switch out hasMany, and belongsTo for
-    * testing
-    */
     
-    /**
-    * This method will switch on runtime changes
-    */
-    public function allowRuntimeSetting()
-    {
-        $this->allowRuntimeSetting = true;
-    }
+    // public function allowRuntimeSetting()
+    // {
+    //     $this->allowRuntimeSetting = true;
+    // }
     
-    public function setHasMany($name, $hasMany)
-    {
-        if (! $this->allowRuntimeSetting)
-            return false;
+    // public function setHasMany($name, $hasMany)
+    // {
+    //     if (! $this->allowRuntimeSetting)
+    //         return false;
         
-        $this->hasMany[$name] = $hasMany;
-    }
+    //     $this->hasMany[$name] = $hasMany;
+    // }
     
-    public function setBelongsTo($name, $belongsTo)
-    {
-        if (! $this->allowRuntimeSetting)
-            return false;
+    // public function setBelongsTo($name, $belongsTo)
+    // {
+    //     if (! $this->allowRuntimeSetting)
+    //         return false;
         
-        $this->belongsTo[$name] = $belongsTo;
-    }
+    //     $this->belongsTo[$name] = $belongsTo;
+    // }
     
-    public function getAdapter()
-    {
-        return $this->adapter;
-    }
+    // public function getAdapter()
+    // {
+    //     return $this->adapter;
+    // }
     
-    public function setAdapter($adapter)
-    {
-        if (! $this->allowRuntimeSetting)
-            return false;
+    // public function setAdapter($adapter)
+    // {
+    //     if (! $this->allowRuntimeSetting)
+    //         return false;
         
-        $this->adapter = $adapter;
-    }
+    //     $this->adapter = $adapter;
+    // }
 }
