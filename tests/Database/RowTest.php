@@ -1,10 +1,13 @@
 <?php
 
 use MartynBiz\Database\Row;
+use MartynBiz\Database\Rowset;
 
 class RowTest extends PHPUnit_Framework_TestCase
 {
     protected $userTableMock;
+    protected $accountTableMock;
+    protected $transactionTableMock;
     
     public function setUp()
     {
@@ -49,6 +52,19 @@ class RowTest extends PHPUnit_Framework_TestCase
         $user = new Row($userTableMock);
         
         $this->assertTrue($user instanceof Row);
+    }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testExceptionIsThrownIfValuesIsNotAnArray()
+    {
+        // we don't need to do anything with this mock, it just has to an instance of this class
+        $accountTableMock = $this->accountTableMock;
+        
+        $invalidValues = new Row($accountTableMock);
+        
+        $user = new Row($accountTableMock, $invalidValues);
     }
     
     public function testPropertyValueGetterWorks()
@@ -108,7 +124,8 @@ class RowTest extends PHPUnit_Framework_TestCase
         // it will be set to return an array of array row values
         $where = 'user_id = ?'; // a has many for users will compare the user_id of the table with this row id
         $whereValues = array( $userValues['id'] ); // row.id
-        $returnAccounts = array( // will return two accounts
+        
+        $arraySet = array( // will return two accounts
             array(
                 'id' => 10,
                 'name' => 'Cool bank',
@@ -120,6 +137,10 @@ class RowTest extends PHPUnit_Framework_TestCase
                 'user_id' => $userValues['id'],
             ),
         );
+        
+        // build up the rowset
+        $returnAccounts = $this->convertArrayToRowset($this->accountTableMock, $arraySet);
+        
         $accountTableMock = $this->accountTableMock;
         $accountTableMock->expects( $this->once() )
             ->method('select')
@@ -151,7 +172,7 @@ class RowTest extends PHPUnit_Framework_TestCase
         //
         
         // check the count
-        $this->assertEquals( count($returnAccounts), count($accounts) );
+        $this->assertEquals( $returnAccounts->count(), $accounts->count() );
         
         // check that each is an instance of Account
         foreach($accounts as $account) {
@@ -173,7 +194,8 @@ class RowTest extends PHPUnit_Framework_TestCase
         // it will be set to return an array of array row values
         $where = 'user_id = ?'; // a has many for users will compare the user_id of the table with this row id
         $whereValues = array( $userValues['id'] ); // row.id
-        $returnAccounts = array();
+        $returnAccounts = new Rowset();
+        
         $accountTableMock = $this->accountTableMock;
         $accountTableMock->expects( $this->once() )
             ->method('select')
@@ -203,7 +225,7 @@ class RowTest extends PHPUnit_Framework_TestCase
         $accounts = $user->accounts;
         
         // check the count
-        $this->assertEquals( count($returnAccounts), count($accounts) );
+        $this->assertEquals( $returnAccounts->count(), $accounts->count() );
     }
     
     public function testBelongsToGetterReturnsArrayOfRowsWhenAssociationsAreFound()
@@ -226,13 +248,18 @@ class RowTest extends PHPUnit_Framework_TestCase
         $options = array(
             'limitMax' => 1, // we only want one
         );
+        
+        $userTableMock = $this->userTableMock;
+        
+        // build our rowset as expected from select()
         $returnUsers = array(
             array( // will return two accounts
                 'id' => 10,
                 'username' => 'banksie',
             )
         );
-        $userTableMock = $this->userTableMock;
+        $returnUsers = $this->convertArrayToRowset($this->userTableMock, $returnUsers);
+        
         $userTableMock->expects( $this->once() )
             ->method('select')
             ->with( $where, $whereValues, $options )
@@ -284,7 +311,7 @@ class RowTest extends PHPUnit_Framework_TestCase
         $options = array(
             'limitMax' => 1, // we only want one
         );
-        $returnUsers = array(); // empty array, nothing found!!!
+        $returnUsers = new Rowset(); // empty array, nothing found!!!
         $userTableMock = $this->userTableMock;
         $userTableMock->expects( $this->once() )
             ->method('select')
@@ -348,6 +375,26 @@ class RowTest extends PHPUnit_Framework_TestCase
         $this->assertTrue( is_null($user) );
     }
     
+    public function testToArray()
+    {
+        // gonna create a user row which 'hasMany' accounts
+        
+        $accountValues = array(
+            'id' => 99,
+            'user_id' => 10,
+        );
+        
+        // mock user table. This table will expect a call to getAssoc which will return everything we 
+        // need to get association rows
+        $accountTableMock = $this->accountTableMock;
+        
+        // create a row with values (user_id=1) and a mock table
+        $account = new Row($accountTableMock, $accountValues);
+        
+        $this->assertEquals( $accountValues, $account->toArray() );
+    }
+        
+    
     public function testSaveCallsTableCreateMethodWithoutId()
     {
         
@@ -366,6 +413,23 @@ class RowTest extends PHPUnit_Framework_TestCase
     public function testDeleteThrowsExceptionWithoutId()
     {
         
+    }
+    
+    /**
+    * Convert an array into a rowset as we'd expect from select()
+    *
+    * @param $mockTable Table Mock of our table, required for Row
+    * @param $arraySet array Array or array row values
+    * 
+    * @return Rowset Rowset of Rows
+    */
+    protected function convertArrayToRowset($mockTable, $arraySet)
+    {
+        $rowset = new Rowset();
+        foreach($arraySet as $rowValues) {
+            $rowset->push( new Row( $mockTable, $rowValues ) );
+        }
+        return $rowset;
     }
 
 }

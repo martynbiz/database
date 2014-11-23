@@ -16,6 +16,9 @@ class Row
     
     public function __construct(Table $table, $values=array())
     {
+        if(! is_array($values))
+            throw new \Exception('Values passed should be an array');
+        
         $this->values = $values;
         $this->table = $table;
     }
@@ -46,10 +49,10 @@ class Row
                         'limitMax' => 1,
                     );
                     
-                    $rows = $table->select($where, $whereValues, $options);
+                    $rowset = $table->select($where, $whereValues, $options);
                     
-                    if(count($rows) > 0) {
-                        return new Row($table, $rows[0]);
+                    if($rowset->count() > 0) {
+                        return new Row($table, $rowset->current()->toArray());
                     }
                     
                     break;
@@ -58,12 +61,12 @@ class Row
                     $where = $foreignKey . ' = ?';
                     $whereValues = array($this->values['id']); //***what happens if id not set
                     
-                    $rows = $table->select($where, $whereValues);
+                    $rowset = $table->select($where, $whereValues);
                     
-                    $rowset = array(); // what we return
-                    foreach($rows as $values) {
-                        array_push($rowset, new Row($table, $values));
-                    }
+                    // $rowset = new Rowset(); // what we return
+                    // foreach($rows as $values) {
+                    //     $rowset->push( new Row($table, $values) );
+                    // }
                     
                     return $rowset;
             }
@@ -94,5 +97,13 @@ class Row
     public function delete()
     {
         
+    }
+    
+    /**
+    * Return values as array
+    */
+    public function toArray()
+    {
+        return $this->values;
     }
 }

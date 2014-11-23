@@ -54,17 +54,26 @@ abstract class Table implements TableInterface
             'limitMax' => 1,
         );
         
-        $result = $this->select($where, $whereValues, $options);
+        $rowset = $this->select($where, $whereValues, $options);
         
-        if(empty($result))
+        if($rowset->count() == 0)
             throw new \InvalidArgumentException('Row of id ' . $id . ' could not be found');
         
-        return $result[0];
+        return $rowset->current();
     }
     
     public function select($where=null, $whereValues=null, $options=array())
     {
-        return $this->adapter->select($this->tableName, $where, $whereValues, $options);
+        $result = $this->adapter->select($this->tableName, $where, $whereValues, $options);
+        
+        $rowset = new Rowset();
+        if(! empty($result)) {
+            foreach ($result as $values) {
+                $rowset->push( new Row($this, $values) );
+            }
+        }
+        
+        return $rowset;
     }
     
     public function prepareNew($value=array())

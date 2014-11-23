@@ -69,9 +69,10 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         
         $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
-        $result = $accountsTable->find(1);
+        $row = $accountsTable->find(1);
         
-        $this->assertEquals($result['id'], $whereValues[0]); // check the ids match
+        $this->assertEquals($row->id, $whereValues[0]); // check the ids match
+        $this->assertTrue($row instanceof \MartynBiz\Database\Row);
     }
     
     /**
@@ -131,9 +132,14 @@ class AbstractTableGatewayTest extends PHPUnit_Framework_TestCase
         
         $accountsTable = new Account($adapter); // getInstance doesn't work well in testing
         
-        $result = $accountsTable->select($where, $whereValues, $options);
+        $rowset = $accountsTable->select($where, $whereValues, $options);
         
-        $this->assertEquals(count($result), count($mockResult)); // check the ids match
+        $this->assertEquals($rowset->count(), count($mockResult)); // check the ids match
+        
+        // conform each is instance of Row
+        foreach ($rowset as $key => $row) {
+            $this->assertTrue($row instanceof \MartynBiz\Database\Row);
+        }
     }
     
     public function testSelectWithNoParameters()
