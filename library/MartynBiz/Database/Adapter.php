@@ -29,7 +29,7 @@ class Adapter implements AdapterInterface {
                 'password' => true,
             ));
             
-            $this->pdo = new PDO($config['dsn'], $config['user'], $config['password']);
+            $this->pdo = new \PDO($config['dsn'], $config['user'], $config['password']);
         }
 	}
 	
