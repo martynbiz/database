@@ -57,7 +57,7 @@ class Adapter implements AdapterInterface {
         // execute
         $stmt->execute($whereValues);
 
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 	}
 	
 	/**

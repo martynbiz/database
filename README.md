@@ -123,10 +123,4 @@ $PDOStatementMock->expects( $this->once() )
 
 // create instance with mock
 $adapter = new MyCustomAdapter(null, $PDOMock);
-```
-
-
-
-Todo
-
-Rowset - this will allow us to make associations when we require records to be objects, but when we need to return all Rows within an array to arrays - we need an iterable Rowset class (with toArray() method) 
+``` 
