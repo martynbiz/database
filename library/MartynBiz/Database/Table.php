@@ -86,12 +86,12 @@ abstract class Table implements TableInterface
         return $this->adapter->insert($this->tableName, $values);
     }
     
-    public function update($values, $where, $whereValues, $options)
+    public function update($values, $where, $whereValues, $options=array())
     {
         return $this->adapter->update($this->tableName, $values, $where, $whereValues, $options);
     }
     
-    public function delete($where, $whereValues, $options)
+    public function delete($where, $whereValues, $options=array())
     {
         return $this->adapter->delete($this->tableName, $where, $whereValues, $options);
     }

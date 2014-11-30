@@ -1,5 +1,10 @@
 <?php
 
+/**
+* TODO:
+* - have property called, updatedValues so we are only updating values that have changed
+*/
+
 namespace MartynBiz\Database;
 
 class Row
@@ -23,6 +28,28 @@ class Row
         $this->table = $table;
     }
     
+    public function set($first=array(), $value=null)
+    {
+        if (is_array($first)) {
+            foreach($first as $key => $value) {
+                $this->values[$key] = $value;
+            }
+        } elseif(! is_null($value)) {
+            $this->values[$first] = $value;
+        }
+    }
+    
+    public function uset($name)
+    {
+        if (is_array($name)) {
+            foreach($name as $single) {
+                unset($this->values[$single]);
+            }
+        } else {
+            unset($this->values[$name]);
+        }
+    }
+    
     /**
     * Getter
     */
@@ -35,6 +62,7 @@ class Row
         // the table class
         
         $assoc = $this->table->getAssoc($name);
+        
         if (is_array($assoc)) {
             // set the table
             $table = $assoc['table'];
@@ -88,7 +116,11 @@ class Row
     */
     public function save()
     {
-        
+        if (isset($this->values['id']) && ! is_null(isset($this->values['id']))) {
+            return $this->table->update($this->values, 'id = ?', array((int) $this->values['id']));
+        } else {
+            return $this->table->create($this->values);
+        }
     }
     
     /**
@@ -96,7 +128,11 @@ class Row
     */
     public function delete()
     {
-        
+        if (isset($this->values['id']) && ! is_null(isset($this->values['id']))) {
+            return $this->table->delete('id = ?', array((int) $this->values['id']));
+        } else {
+            throw new \InvalidArgumentException('ID not set');
+        }
     }
     
     /**

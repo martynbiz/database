@@ -124,3 +124,9 @@ $PDOStatementMock->expects( $this->once() )
 // create instance with mock
 $adapter = new MyCustomAdapter(null, $PDOMock);
 ``` 
+
+
+TODO
+
+- cascade
+- 

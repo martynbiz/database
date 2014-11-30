@@ -44,6 +44,95 @@ class RowTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($user->name, $values['name']);
     }
     
+    
+    
+    
+    
+    public function testSetValuesSetsValuesWithSingle()
+    {
+        // values
+        $name = 'name';
+        $value = 'Joe';
+        
+        // we don't need to do anything with this mock, it just has to an instance of this class
+        $userTableMock = $this->userTableMock;
+        
+        $user = new Row($userTableMock);
+        
+        $user->set($name, $value);
+        
+        $this->assertEquals($user->$name, $value);
+    }
+    
+    public function testSetValuesSetsValuesWithArray()
+    {
+        // values
+        $values = array(
+            'id' => 1,
+            'name' => 'Martyn',
+            'email' => 'joe@yahoo.com',
+        );
+        
+        // we don't need to do anything with this mock, it just has to an instance of this class
+        $userTableMock = $this->userTableMock;
+        
+        $user = new Row($userTableMock);
+        
+        $user->set($values);
+        
+        $this->assertEquals($user->id, $values['id']);
+        $this->assertEquals($user->name, $values['name']);
+    }
+    
+    
+    public function testSetValuesUnsetsValuesWithSingle()
+    {
+        // values
+        $values = array(
+            'id' => 1,
+            'name' => 'Martyn',
+            'email' => 'joe@yahoo.com',
+        );
+        
+        $unset = 'name';
+        
+        // we don't need to do anything with this mock, it just has to an instance of this class
+        $userTableMock = $this->userTableMock;
+        
+        $user = new Row($userTableMock, $values);
+        
+        $user->uset($unset);
+        
+        $this->assertEquals($user->$unset, null);
+    }
+    
+    public function testSetValuesUnsetsValuesWithArray()
+    {
+        // values
+        $values = array(
+            'id' => 1,
+            'name' => 'Martyn',
+            'email' => 'joe@yahoo.com',
+        );
+        
+        $unset = array('name', 'email');
+        
+        // we don't need to do anything with this mock, it just has to an instance of this class
+        $userTableMock = $this->userTableMock;
+        
+        $user = new Row($userTableMock, $values);
+        
+        $user->uset($unset);
+        
+        foreach($unset as $name) {
+            $this->assertEquals($user->$name, null);
+        }
+    }
+    
+    
+    
+    
+    
     public function testRowIsInitiatedWithoutValues()
     {
         // we don't need to do anything with this mock, it just has to an instance of this class
@@ -397,22 +486,97 @@ class RowTest extends PHPUnit_Framework_TestCase
     
     public function testSaveCallsTableCreateMethodWithoutId()
     {
+        // gonna create a user row which 'hasMany' accounts
         
+        $accountValues = array(
+            //'id' => 99,
+            'name' => 'Cool bank',
+        );
+        
+        // mock user table. This table will expect a call to getAssoc which will return everything we 
+        // need to get association rows
+        $accountTableMock = $this->accountTableMock;
+        $accountTableMock->expects( $this->once() )
+            ->method('create')
+            ->with($accountValues)
+            ->will( $this->returnValue( true ) );
+        
+        // create a row with values (user_id=1) and a mock table
+        $account = new Row($accountTableMock, $accountValues);
+        
+        // now, try to access the assoc via the Row object. We should pass the mock object assertions
+        // such as $this->once, method('select') etc and have a return value
+        $result = $account->save();
+        
+        // check the count
+        $this->assertTrue($result);
     }
     
     public function testSaveCallsTableUpdateMethodWithId()
     {
+        $accountValues = array(
+            'id' => 99,
+            'name' => 'Cool bank',
+        );
         
+        // mock user table. This table will expect a call to getAssoc which will return everything we 
+        // need to get association rows
+        $accountTableMock = $this->accountTableMock;
+        $accountTableMock->expects( $this->once() )
+            ->method('update')
+            ->with($accountValues, 'id = ?', array($accountValues['id']), array())
+            ->will( $this->returnValue( true ) );
+        
+        // create a row with values (user_id=1) and a mock table
+        $account = new Row($accountTableMock, $accountValues);
+        
+        // now, try to access the assoc via the Row object. We should pass the mock object assertions
+        // such as $this->once, method('select') etc and have a return value
+        $result = $account->save();
+        
+        // check the count
+        $this->assertTrue($result);
     }
     
     public function testDeleteCallsTableDeleteMethodWithId()
     {
+        $accountValues = array(
+            'id' => 99,
+            'name' => 'Cool bank',
+        );
         
+        // mock user table. This table will expect a call to getAssoc which will return everything we 
+        // need to get association rows
+        $accountTableMock = $this->accountTableMock;
+        $accountTableMock->expects( $this->once() )
+            ->method('delete')
+            ->with('id = ?', array($accountValues['id']), array());
+        
+        // create a row with values (user_id=1) and a mock table
+        $account = new Row($accountTableMock, $accountValues);
+        
+        // now, ...
+        $result = $account->delete();
     }
     
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testDeleteThrowsExceptionWithoutId()
     {
+        $accountValues = array(
+            'name' => 'Cool bank',
+        );
         
+        // mock user table. This table will expect a call to getAssoc which will return everything we 
+        // need to get association rows
+        $accountTableMock = $this->accountTableMock;
+        
+        // create a row with values (user_id=1) and a mock table
+        $account = new Row($accountTableMock, $accountValues);
+        
+        // now, delete the row even though an id hasn't been set
+        $result = $account->delete();
     }
     
     /**
